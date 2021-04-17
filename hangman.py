@@ -1,5 +1,6 @@
 import random
 import os
+import unicodedata
 
 #Define la constante de la cantidad de intentos
 INTENTOS = 10
@@ -40,6 +41,7 @@ def draw_board(lista_letras,intentos):
     else:
     # for windows platfrom
         _ = os.system('cls')
+    
     print("....THE HANGMAN GAME....")
     print("Tienes "+intentos+" intentos.")
     print(table)
@@ -51,7 +53,11 @@ def update_lista(letra,lista_letras):
     new_list = []
     for l in lista_letras:
         for key,value in l.items():
-            if key == letra:
+            if key == "á" or key == "é" or key == "í" or key == "ó" or key == "ú":
+                #ignora las tildes en la vocales
+                if unicodedata.normalize('NFKD', key).encode('ASCII', 'ignore') == unicodedata.normalize('NFKD', letra).encode('ASCII', 'ignore'):
+                    l[key]=True
+            elif key == letra:
                 l[key]=True
             new_list.append({key:l[key]})
     return new_list           
@@ -62,7 +68,11 @@ def update_lista(letra,lista_letras):
 def update_intentos(lista_letras,letra,intentos):
     for l in lista_letras:
         for key,value in l.items():
-            if key == letra:
+            if key == "á" or key == "é" or key == "í" or key == "ó" or key == "ú":
+                #ignora las tildes en la vocales
+                if unicodedata.normalize('NFKD', key).encode('ASCII', 'ignore') == unicodedata.normalize('NFKD', letra).encode('ASCII', 'ignore'):
+                    return intentos
+            elif key == letra:
                 return intentos
     return intentos-1
 
@@ -79,21 +89,29 @@ def update_game(lista_letras):
             
 
 def run():
+    #Establece los parametros iniciales del juego
     game = True
     intentos = INTENTOS
     palabra = set_palabra()
     lista_letras = set_lista_inicio(palabra)
     draw_board(lista_letras,str(intentos))
 
+    #Ciclo que mantiene el juego activo hasta que los intentos sean de 0 o se adivine la palabra de forma exitos
     while game:
         letra = input("Ingrese una nueva letra: ")
+        
+        #Ciclo que informa al usuario que solo tiene permitido ingresar caracteres con longitud 1, este ciclo se repite mientras no cumpla la condicion.
         while len(letra)>1:
             print("Solo debes ingresar 1 solo caracter")
             letra = input("Ingrese una nueva letra: ")
             draw_board(lista_letras,str(intentos))
+        
+        #Ejecuta la evaluacion de la letra ingresada, actualizando los intentos, actualizando la lista de letras y actualizando el tablero de juego
         intentos = update_intentos(lista_letras,letra,intentos)
         lista_letras = update_lista(letra,lista_letras)
         draw_board(lista_letras,str(intentos))
+        
+        #Determina el estado del juego, si los intentos son cero, se detiene el juego o si se adivinaron todas las letras
         if intentos == 0:
             game = False
             print("Perdiste, la palabra era: "+ palabra)
