@@ -87,12 +87,16 @@ def run():
 
     while game:
         letra = input("Ingrese una nueva letra: ")
+        while len(letra)>1:
+            print("Solo debes ingresar 1 solo caracter")
+            letra = input("Ingrese una nueva letra: ")
+            draw_board(lista_letras,str(intentos))
         intentos = update_intentos(lista_letras,letra,intentos)
         lista_letras = update_lista(letra,lista_letras)
         draw_board(lista_letras,str(intentos))
         if intentos == 0:
             game = False
-            print("Perdiste")
+            print("Perdiste, la palabra era: "+ palabra)
         else:       
             game = update_game(lista_letras)
         
